@@ -1,0 +1,8 @@
+[package]
+name = "bullet-terminal"
+version = "0.1.0"
+authors = ["Tim Deeb-Swihart <chronon@me.com>"]
+
+[dependencies]
+cursive = "0.9"
+cursive_table_view = "0.5.0"
