@@ -83,28 +83,32 @@ pub fn daily_view(date: NaiveDate) -> Box<View> {
             Some(EventResult::Consumed(None))
         });
 
-    let help_view = ListView::new()
-        .child("n", TextView::new("Add a new entry"))
-        .child("j", TextView::new("Move the entry selection cursor up"))
-        .child("k", TextView::new("Move the entry selection cursor down"))
-        .child("h", TextView::new("View the previous day's journal"))
-        .child("l", TextView::new("View the next day's journal"))
-        .child("h", TextView::new("View the journal from one week prior"))
-        .child("l", TextView::new("View the journal one week into the future"))
-        .child("e", TextView::new("Mark the selected entry as an event"))
-        .child("t", TextView::new("Mark the selected entry as a task"))
-        .child("d", TextView::new("Mark the selected entry as done"))
-        .child("m", TextView::new("View your monthly log (TODO)"))
-        .child("f", TextView::new("View your future log (TODO)"))
-        .child("r", TextView::new("Mark the entry as a note (r for remember)"))
-        .child(",", TextView::new("Schedule (<) the task in the future (TODO)"))
-        .child(".", TextView::new("Migrate (>) the task to a collection (TODO)"))
-        .child("C-c", TextView::new("Quit"))
-        .with_id("help");
     let day_view = OnEventView::new(LinearLayout::vertical()
                                     .child(title.with_id("title"))
                                     .child(ev.with_id("entries")))
         // TODO: add the help popup here and have only a short message in the window
+        .on_pre_event(Event::Char('?'), |s| {
+            let help_view = ListView::new()
+                .child("n", TextView::new("Add a new entry"))
+                .child("j", TextView::new("Move the entry selection cursor up"))
+                .child("k", TextView::new("Move the entry selection cursor down"))
+                .child("h", TextView::new("View the previous day's journal"))
+                .child("l", TextView::new("View the next day's journal"))
+                .child("h", TextView::new("View the journal from one week prior"))
+                .child("l", TextView::new("View the journal one week into the future"))
+                .child("e", TextView::new("Mark the selected entry as an event"))
+                .child("t", TextView::new("Mark the selected entry as a task"))
+                .child("d", TextView::new("Mark the selected entry as done"))
+                .child("space", TextView::new("Toggle completion status"))
+                .child("m", TextView::new("View your monthly log (TODO)"))
+                .child("f", TextView::new("View your future log (TODO)"))
+                .child("r", TextView::new("Mark the entry as a note (r for remember)"))
+                .child(",", TextView::new("Schedule (<) the task in the future (TODO)"))
+                .child(".", TextView::new("Migrate (>) the task to a collection (TODO)"))
+                .child("q", TextView::new("Quit"))
+                .with_id("help");
+            s.screen_mut().add_layer(Dialog::around(help_view).dismiss_button("Ok"));
+        })
         .on_pre_event(Event::Char('n'), |s| {
             // TODO: pull this out into a proper function somewhere
             s.screen_mut().add_layer(
@@ -122,7 +126,7 @@ pub fn daily_view(date: NaiveDate) -> Box<View> {
         });
     Box::new(LinearLayout::horizontal()
              .child(day_view.min_width(40))
-             .child(Dialog::around(help_view).title("Bullet Terminal")))
+             .child(Dialog::around(TextView::new("Press ? for help")).title("Bullet Terminal")))
 }
 
 /// Save the current day's entries. Looks at the contents of the "title" view to figure it out
