@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Tim Deeb-Swihart <chronon@me.com>"]
 
 [dependencies]
+chrono = { version = "0.4", features = ["serde"] }
 cursive = "0.9"
-cursive_table_view = "0.5.0"
+xdg = "^2.1"
