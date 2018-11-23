@@ -1,6 +1,9 @@
 # Bullet Terminal
 For all your terminal-based task-tracking needs
 
+![Screenshot 1](/../screenshots/screens/dracula.png?raw=true "Screenshot")
+![Screenshot 2](/../screenshots/screens/solarized.png?raw=true "Screenshot 2")
+
 ## Save data format
 All data is saved to `$XDG_CONFIG_DIR` (or `~/.config/bullet-terminal` when unset). Subdirectories are as follows:
 
