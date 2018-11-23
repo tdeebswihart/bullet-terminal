@@ -20,11 +20,13 @@ Honestly? I enjoyed it. It was a silly way to learn rust. While I'm using it to 
 Although since they're just easy text files, I could set up an external program to sync them and write a mobile client...
 
 ## TODO
-[] Break out rendering into proper views: DailyView, MonthlyView, CollectionView, FutureView, etc.
-[] Build a smarter data storage solution
+[x] Break out rendering into proper views: DailyView
+[] Pop the help out into a dialog with only a short hint on screen
+[] 2 columns? one for TODO, the other for DONE? To keep the active pane clear. Or maybe but notes and events on one side, with tasks on the other
+[] Build a smarter data storage solution?
+[] Add a monthly log (should be easy if I change the storage to `$XDG_CONFIG_DIR/bullet-terminal/year/month/day.txt`)
 [] Give each entry a UUID so they can be linked between dates (say, when scheduled)?
 [] Add a calendar view for picking the day (from the title bar)
-[] Add a monthly log (should be easy if I change the storage to `$XDG_CONFIG_DIR/bullet-terminal/year/month/day.txt`)
 [] Add fst and use it for global search (its overkill but I want to learn the library anyways)
 [] Add collection support. It wouldn't be hard to add support for a Monthly collection, and a future log.
 [] Add support for custom collections (like tags). Using a proper database would make this easy, but I'm enjoying writing it all myself.

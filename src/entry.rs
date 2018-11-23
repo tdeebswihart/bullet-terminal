@@ -45,7 +45,7 @@ pub enum EntryState {
     Collected(NaiveDateTime),
     Completed
 }
-use EntryState::*;
+use self::EntryState::*;
 
 impl EntryState {
     pub fn from_str(tag: &str) -> Result<EntryState, ParseError> {
@@ -72,20 +72,6 @@ impl EntryState {
     /// Return the nice unicode display symbol, which is a pain to type on the keyboard
     /// so isn't also used for storage.
     pub fn to_display(&self) -> String {
-        (match self {
-            Incomplete=> "•",
-            Note => "-",
-            Event => "o",
-            Scheduled(_) => "<",
-            Collected(_) => ">",
-            Completed => "×"
-        }).to_string()
-    }
-
-    /// Mutable implementation of the same
-    /// Return the nice unicode display symbol, which is a pain to type on the keyboard
-    /// so isn't also used for storage.
-    pub fn to_display_mut(&mut self) -> String {
         (match self {
             Incomplete=> "•",
             Note => "-",
@@ -122,7 +108,7 @@ pub struct Entry {
 impl Entry {
     pub fn new(content: &str, state: EntryState) -> Entry {
         Entry {state: state,
-              content: content.trim().to_string()}
+               content: content.trim().to_string()}
     }
 
     pub fn from_str(line: &str) -> Result<Entry, ParseError> {
@@ -131,7 +117,7 @@ impl Entry {
             Some(idx) => {
                 let (tag, body) = line.split_at(idx);
                 let state = self::EntryState::from_str(tag.trim())?;
-                Ok(self::Entry {content: body.to_string(), state: state})
+                Ok(self::Entry {content: body.trim().to_string(), state: state})
             },
             None => Err(InvalidEntry(line.to_string()))
         }
