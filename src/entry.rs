@@ -1,17 +1,10 @@
 use chrono::{NaiveDateTime, ParseError as DateParseError};
-use std::option;
+use std::fmt;
+use std::io;
 use std::string::ToString;
 use std::result::Result;
 
-pub enum EntryState {
-    Incomplete,
-    Note,
-    Event,
-    Scheduled(NaiveDateTime),
-    Collected(NaiveDateTime),
-    Completed
-}
-
+#[derive(Debug)]
 pub enum ParseError {
     InvalidTag(String),
     InvalidDateTime(String),
@@ -26,6 +19,11 @@ impl From<DateParseError> for ParseError {
     }
 }
 
+impl From<io::Error> for ParseError {
+    fn from(error: io::Error) -> ParseError {
+        InvalidEntry(format!("{}", error))
+    }
+}
 
 impl ToString for ParseError {
     fn to_string(&self) -> String {
@@ -37,6 +35,17 @@ impl ToString for ParseError {
         }
     }
 }
+
+#[derive(Debug)]
+pub enum EntryState {
+    Incomplete,
+    Note,
+    Event,
+    Scheduled(NaiveDateTime),
+    Collected(NaiveDateTime),
+    Completed
+}
+use EntryState::*;
 
 impl EntryState {
     pub fn from_str(tag: &str) -> Result<EntryState, ParseError> {
@@ -63,7 +72,20 @@ impl EntryState {
     /// Return the nice unicode display symbol, which is a pain to type on the keyboard
     /// so isn't also used for storage.
     pub fn to_display(&self) -> String {
-        use EntryState::*;
+        (match self {
+            Incomplete=> "•",
+            Note => "-",
+            Event => "o",
+            Scheduled(_) => "<",
+            Collected(_) => ">",
+            Completed => "×"
+        }).to_string()
+    }
+
+    /// Mutable implementation of the same
+    /// Return the nice unicode display symbol, which is a pain to type on the keyboard
+    /// so isn't also used for storage.
+    pub fn to_display_mut(&mut self) -> String {
         (match self {
             Incomplete=> "•",
             Note => "-",
@@ -75,31 +97,32 @@ impl EntryState {
     }
 }
 
-impl ToString for EntryState {
+impl fmt::Display for EntryState {
     /// Convert it to the simple string for saving. That way it can be edited in other programs
-    pub fn to_string(&self) -> String {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use entry::EntryState::*;
         match self {
-            Incomplete => ".".to_string(),
-            Note => "-".to_string(),
-            Event => "o".to_string(),
-            Scheduled(date) => date.format("<%Y-%m-%d").to_string(),
-            Collected(date) => date.format(">%Y-%m-%d").to_string(),
-            Completed => "x".to_string()
+            Incomplete => write!(f, "."),
+            Note => write!(f, "-"),
+            Event => write!(f, "o"),
+            Scheduled(date) => write!(f, "{}", date.format("<%Y-%m-%d")),
+            Collected(date) => write!(f, "{}", date.format(">%Y-%m-%d")),
+            Completed => write!(f, "x")
         }
     }
 }
 
 
+#[derive(Debug)]
 pub struct Entry {
-    state: EntryState,
-    content: String
+    pub state: EntryState,
+    pub content: String
 }
 
 impl Entry {
     pub fn new(content: &str, state: EntryState) -> Entry {
         Entry {state: state,
-              content: content.to_string()}
+              content: content.trim().to_string()}
     }
 
     pub fn from_str(line: &str) -> Result<Entry, ParseError> {
@@ -113,14 +136,25 @@ impl Entry {
             None => Err(InvalidEntry(line.to_string()))
         }
     }
-}
 
-impl ToString for Entry {
-    pub fn to_string(&self) -> String {
-        [self.state.to_string(), self.content.clone()].join(" ")
+    pub fn toggle_state(&mut self) {
+        match self.state {
+            EntryState::Incomplete => self.state = EntryState::Completed,
+            EntryState::Completed => self.state = EntryState::Incomplete,
+            _ => ()
+        };
     }
+
+    /// Return the nice unicode display symbol, which is a pain to type on the keyboard
+    /// so isn't also used for storage.
+    pub fn to_display(&self) -> String {
+        format!("{} {}", self.state.to_display(), self.content)
+    }
+
 }
 
-pub struct DailyView {
-
+impl fmt::Display for Entry {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {}", self.state, self.content)
+    }
 }
